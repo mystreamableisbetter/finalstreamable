@@ -51,7 +51,7 @@ getgenv().Aiming = {
     Selected = nil,
     SelectedPart = nil,
 
-    TargetPart = {"Head", "HumanoidRootPart", "LowerTorso"},
+    TargetPart = {"Head", "UpperTorso", "HumanoidRootPart", "LowerTorso", "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg",  "LeftUpperLeg", "RightLowerLeg", "RightFoot",  "RightUpperLeg"},
 
     Ignored = {
         Teams = {
@@ -454,3 +454,172 @@ end)
 
 -- //
 return Aimingd
+
+-- // Addons
+
+
+
+
+
+
+
+
+
+-- // Inv Sorter
+
+local UserInputService = game:GetService("UserInputService")
+
+local Sorting = {
+    ['Enabled'] = true,
+    ['Keybind'] = Enum.KeyCode.Equals,
+    ['Slot 1'] = "[Revolver]",
+    ['Slot 2'] = "[Double-Barrel SG]",
+    ['Slot 3'] = "[Shotgun]",
+    ['Slot 4'] = "",
+    ['Slot 5'] = "",
+    ['Slot 6'] = "",
+    ['Slot 7'] = "",
+    ['Slot 8'] = "",
+    ['Slot 9'] = "",
+    ['Slot 0'] = "",
+}
+
+local function sortInventory()
+    if not Sorting.Enabled then
+        return
+    end
+
+    local player = game.Players.LocalPlayer
+    local backpack = player:FindFirstChildOfClass("Backpack")
+    if not backpack then
+        return
+    end
+
+    local originalItems = {}
+    for _, tool in pairs(backpack:GetChildren()) do
+        table.insert(originalItems, tool)
+    end
+    for _, tool in pairs(backpack:GetChildren()) do
+        tool.Parent = nil
+    end
+
+    for i = 1, 10 do
+        local slot = 'Slot ' .. tostring(i % 10) -- Slot 0 for the 10th slot
+        local desiredItemName = Sorting[slot]
+        if desiredItemName and desiredItemName ~= "" then
+            for index, tool in ipairs(originalItems) do
+                if tool.Name == desiredItemName then
+                    tool.Parent = backpack
+                    table.remove(originalItems, index)
+                    break
+                end
+            end
+        end
+    end
+    for _, tool in pairs(originalItems) do
+        tool.Parent = backpack
+    end
+end
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+    if isProcessed then
+        return
+    end
+    if input.KeyCode == Sorting.Keybind then
+        sortInventory()
+    end
+end)
+
+--// Memory Spoofer
+
+local Settings = {
+    range1 = 600,
+    range2 = 1000,
+    
+}
+
+for __, v in pairs(game.CoreGui.RobloxGui.PerformanceStats:GetChildren()) do
+    if v.Name == "PS_Button" and v.StatsMiniTextPanelClass.TitleLabel.Text == "Mem" then
+        Memory = v.StatsMiniTextPanelClass.ValueLabel
+    end
+end
+
+Memory:GetPropertyChangedSignal("Text"):Connect(function()
+    local Random = math.random(Settings.range1,Settings.range2)
+    Random = Random * 1.23 
+    Memory.Text = "".. Random .." MB"
+end)
+
+-- // Anti Aimviewer
+
+local China = setmetatable({}, {
+   __index = function(Company, Price)
+       return game:GetService(Price)
+   end})
+   
+local Players = China.Players
+local ReplicatedStorage = China.ReplicatedStorage
+
+--//Variables
+local LocalPlayer = Players.LocalPlayer
+local Mouse =  LocalPlayer:GetMouse()
+
+local MainEvent = ReplicatedStorage:FindFirstChild("MainEvent") or nil
+local Tool = nil
+
+Bypass = function(Entity)
+   Entity.ChildAdded:Connect(function(Child)
+       if Child:IsA("Tool") then
+         Tool = Child.Activated:Connect(function()
+               if MainEvent then
+                  MainEvent:FireServer("UpdateMousePos", Mouse.Hit.Position)
+               end
+           end)
+       end
+   end)
+end
+
+
+
+local Alive = function(Player)
+   return Player and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("Head") or false
+end
+
+LocalPlayer.CharacterAdded:Connect(function(Character)
+   Bypass(Character)
+end)
+
+if Alive(LocalPlayer) then
+   LocalPlayer.Character.Humanoid:UnequipTools()
+   Bypass(LocalPlayer.Character)
+end
+
+local Hook
+Hook = hookmetamethod(game, "__namecall", function(self, ...)
+   local Args = {...}
+   local Method = getnamecallmethod()
+
+   if not checkcaller() and Method == "FireServer" and self.Name == "MainEvent" and Args[1] == "UpdateMousePos" then
+
+      Args[2] = "Scarcin made this" and Mouse.Hit.Position
+       
+       return self.FireServer(self, unpack(Args))
+   end
+   
+   return Hook(self, ...)
+end)
+
+-- // Resolver
+
+while true do
+    heartbeat:Wait()
+    if target == true then
+        local character = game.Players[targetplr].Character.HumanoidRootPart
+        local lastPosition = character.Position
+        task.wait()
+        local currentPosition = character.Position
+        local velocity = (currentPosition - lastPosition) * 0
+        character.AssemblyLinerVelocity = velocity
+        character.Velocity = velocity
+    end
+end
+
