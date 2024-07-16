@@ -1,0 +1,11 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/mystreamableisbetter/finalstreamable/main/src2", true))()
+
+DaHoodSettings.Prediction = 0.0
+
+getgenv().Aiming.TargetPart = {"Head", "HumanoidRootPart", "LowerTorso"}
+
+getgenv().Aiming.HitChance = 100
+
+getgenv().Aiming.ShowFOV = false
+
+getgenv().Aiming.FOV = 25.4
